@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Singapore Population Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Singapore Population Choropleth Map (2023)</h1>
+    <div id="map" style="height: 600px; width: 100%;"></div>
 
+    <script>
+        var map = L.map('map').setView([1.3521, 103.8198], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var geojsonData = 'sgmap.json';
+        var populationData = {
+            "Admiralty": 13600,
+            "Airport Road": 0,
+            "Alexandra Hill": 13220,
+            "Alexandra North": 2930,
+            "Aljunied": 43190
+        };
+
+        function getColor(d) {
+            return d > 40000 ? '#800026' :
+                   d > 20000 ? '#BD0026' :
+                   d > 10000 ? '#E31A1C' :
+                   d > 5000  ? '#FC4E2A' :
+                   d > 1000  ? '#FD8D3C' :
+                               '#FFEDA0';
+        }
+
+        function style(feature) {
+            var subzoneName = feature.properties['Subzone Name'];
+            var population = populationData[subzoneName] || 0;
+            return {
+                fillColor: getColor(population),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        fetch(geojsonData)
+            .then(response => response.json())
+            .then(data => {
+                L.geoJson(data, {
+                    style: style,
+                    onEachFeature: function (feature, layer) {
+                        var subzoneName = feature.properties['Subzone Name'];
+                        var population = populationData[subzoneName] || "No data";
+                        layer.bindPopup(`<b>${subzoneName}</b><br>Population: ${population}`);
+                    }
+                }).addTo(map);
+            })
+            .catch(err => console.error('Error loading GeoJSON:', err));
+    </script>
+</body>
+</html>
