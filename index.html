@@ -1,1 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Singapore Population Choropleth Map (2023)</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Singapore Population Choropleth Map (2023)</h1>
+    <div id="map" style="height: 600px; width: 100%;"></div>
 
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([1.3521, 103.8198], 12);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Population data (standardized and cleaned)
+        var populationData = {
+            "ADMIRALTY": 13600,
+            "AIRPORT ROAD": 0,
+            "ALEXANDRA HILL": 13220,
+            "ALEXANDRA NORTH": 2930,
+            "ALJUNIED": 43190,
+            "ANAK BUKIT": 22640,
+            "ANCHORVALE": 51120,
+            "ANG MO KIO TOWN CENTRE": 4960,
+            "ANSON": 80,
+            "BAYFRONT SUBZONE": 0,
+            "BAYSIDE": 7890,
+            "BEDOK NORTH": 82770,
+            "BEDOK RESERVOIR": 25390,
+            "BEDOK SOUTH": 48910,
+            "BENOI SECTOR": 0,
+            "BIDADARI": 3760,
+            "BISHAN EAST": 27780,
+            "BOAT QUAY": 150,
+            "BOON KENG": 11230,
+            "BOON LAY PLACE": 28590,
+            "BOON TECK": 14680,
+            "BRAS BASAH": 10,
+            "BUKIT BATOK CENTRAL": 27670,
+            "BUKIT BATOK EAST": 12280,
+            "BUKIT BATOK SOUTH": 14730,
+            "BUKIT BATOK WEST": 14570,
+            "BUKIT HO SWEE": 13740,
+            "BUKIT MERAH": 1040,
+            "CHANGI AIRPORT": 0,
+            "CHANGI BAY": 0,
+            "CHANGI POINT": 590,
+            "CHANGI WEST": 1350,
+            "CLEMENTI CENTRAL": 14780,
+            "CLEMENTI NORTH": 29400,
+            "CLEMENTI WEST": 14530,
+            "CLEMENTI WOODS": 18270,
+            "COMMONWEALTH": 6700,
+            "COMPASSVALE": 20810,
+            "DAIRY FARM": 7130,
+            "DEPOT ROAD": 6500,
+            "DOVER": 11280,
+            "EAST COAST": 0,
+            "EVERTON PARK": 7650,
+            "FABER": 5490,
+            "FAJAR": 26800,
+            "FERNVALE": 65590,
+            "GEYLANG EAST": 31440,
+            "GEYLANG BAHRU": 10650,
+            "HENDERSON HILL": 13000,
+            "HOLLAND DRIVE": 12210,
+            "HOLLAND ROAD": 11560,
+            "JURONG GATEWAY": 570,
+            "JURONG ISLAND AND BUKOM": 0,
+            "JURONG PORT": 0,
+            "JURONG WEST CENTRAL": 62960,
+            "KALLANG BAHRU": 20,
+            "KAMPONG BUGIS": 1590,
+            "KAMPONG GLAM": 120,
+            "KAMPONG JAVA": 10430,
+            "KAMPONG UBI": 12960,
+            "KANGKAR": 32950,
+            "KATONG": 9450,
+            "KEAT HONG": 38990,
+            "KEMBANGAN": 36340,
+            "MARINA CENTRE": 20,
+            "MARINA SOUTH": 0,
+            "MATILDA": 53340,
+            "MAXWELL": 0,
+            "MEI CHIN": 16590,
+            "MIDVIEW": 34580,
+            "MOULMEIN": 10400,
+            "MURAI": 590,
+            "NASSIM": 10610,
+            "NORTH COAST": 11590,
+            "NORTHSHORE": 14050,
+            "ONE TREE HILL": 2340,
+            "PASIR RIS CENTRAL": 32300,
+            "PASIR RIS DRIVE": 52650,
+            "PASIR RIS WEST": 35580,
+            "PEARL'S HILL": 5430,
+            "PENG SIANG": 34250,
+            "PIONEER SECTOR": 10,
+            "PLAB": 0,
+            "PLANTATION": 0,
+            "PUNGGOL FIELD": 49010,
+            "PUNGGOL TOWN CENTRE": 24770,
+            "REDHILL": 11090,
+            "RIVERVALE": 59180,
+            "SENGKANG TOWN CENTRE": 61210,
+            "SIMEI": 39050,
+            "TAMPINES EAST": 126460,
+            "TAMPINES NORTH": 25680,
+            "TAMPINES WEST": 81370,
+            "TANJONG PAGAR": 870,
+            "TELUK BLANGAH RISE": 19390,
+            "TENGAH": 0,
+            "TOA PAYOH CENTRAL": 27570,
+            "TOA PAYOH WEST": 14120,
+            "UPPER THOMSON": 31090,
+            "WATERWAY EAST": 53580,
+            "WOODLANDS EAST": 100220,
+            "WOODLANDS SOUTH": 40270,
+            "WOODLANDS WEST": 35460,
+            "YIO CHU KANG": 10,
+            "YIO CHU KANG EAST": 4400,
+            "YISHUN CENTRAL": 2960,
+            "YISHUN EAST": 70190,
+            "YISHUN SOUTH": 41920,
+            "YISHUN WEST": 52160
+};
+
+        // Load GeoJSON data
+        var geojsonData = 'sgmap.json'; // Ensure this file is in the same directory
+
+        // Function to get color based on population
+        function getColor(d) {
+            return d > 100000 ? '#800026' :
+                   d > 50000  ? '#BD0026' :
+                   d > 30000  ? '#E31A1C' :
+                   d > 20000  ? '#FC4E2A' :
+                   d > 10000  ? '#FD8D3C' :
+                                '#FFEDA0';
+        }
+
+        function style(feature) {
+            var subzoneName = feature.properties['Subzone Name'].toUpperCase(); // Convert to uppercase
+            var population = populationData[subzoneName] || 0; // Default to 0 if no data
+
+            // Special style for zero population zones
+            if (population === 0) {
+                return {
+                    fillColor: '#CCCCCC', // Grey for uninhabited areas
+                    weight: 1,
+                    opacity: 0.5,
+                    color: 'white',
+                    dashArray: '3',
+                    fillOpacity: 0.5
+                };
+            }
+
+            // Regular color scaling
+            return {
+                fillColor: getColor(population),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        function onEachFeature(feature, layer) {
+            var subzoneName = feature.properties['Subzone Name'].toUpperCase();
+            var population = populationData[subzoneName] || 0;
+
+            // Enhanced popup
+            if (population === 0) {
+                layer.bindPopup(`<b>${subzoneName}</b><br>Population: ${population} (Uninhabited or Non-residential)`);
+            } else {
+                layer.bindPopup(`<b>${subzoneName}</b><br>Population: ${population}`);
+            }
+        }
+
+        // Add GeoJSON to the map
+        fetch(geojsonData)
+            .then(response => response.json())
+            .then(data => {
+                L.geoJson(data, {
+                    style: style,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+            })
+            .catch(err => console.error('Error loading GeoJSON:', err));
+    </script>
+</body>
+</html>
