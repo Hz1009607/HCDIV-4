@@ -1,1 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Singapore Population Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Singapore Population Choropleth Map</h1>
+    <div>
+        <button id="maleBtn">Male</button>
+        <button id="femaleBtn">Female</button>
+    </div>
+    <div id="map" style="height: 600px; width: 100%;"></div>
+
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([1.3521, 103.8198], 12);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var populationData = {
+    "ADMIRALTY": 13600,
+    "AIRPORT ROAD": 0,
+    "ALEXANDRA HILL": 13220,
+    "ALEXANDRA NORTH": 2930,
+    "ALJUNIED": 43190,
+    "ANAK BUKIT": 22640,
+    "ANCHORVALE": 51120,
+    "ANG MO KIO TOWN CENTRE": 4960,
+    "ANSON": 80,
+    "BAHAR": 0,
+    "BALESTIER": 33040,
+    "BANGKIT": 21510,
+    "BAYFRONT SUBZONE": 0,
+    "BAYSHORE": 7890,
+    "BEDOK NORTH": 82770,
+    "BEDOK RESERVOIR": 25390,
+    "BEDOK SOUTH": 48910,
+    "BENCOOLEN": 1290,
+    "BENDEMEER": 37420,
+    "BENOI SECTOR": 0,
+    "BIDADARI": 3760,
+    "BISHAN EAST": 27780,
+    "BOAT QUAY": 150,
+    "BOON KENG": 11230,
+    "BOON LAY PLACE": 28590,
+    "BOON TECK": 14680,
+    "BOULEVARD": 530,
+    "BRADDELL": 9650,
+    "BRAS BASAH": 10,
+    "BRICKLAND": 0,
+    "BRICKWORKS": 30870,
+    "BUGIS": 950,
+    "BUKIT BATOK CENTRAL": 27670,
+    "BUKIT BATOK EAST": 12280,
+    "BUKIT BATOK SOUTH": 14730,
+    "BUKIT BATOK WEST": 14570,
+    "BUKIT HO SWEE": 13740,
+    "BUKIT MERAH": 1040,
+    "CAIRNHILL": 4480,
+    "CECIL": 510,
+    "CENTRAL SUBZONE": 1330,
+    "CENTRAL WATER CATCHMENT": 0,
+    "CHANGI AIRPORT": 0,
+    "CHANGI BAY": 0,
+    "CHANGI POINT": 590,
+    "CHANGI WEST": 1350,
+    "CHATSWORTH": 7580,
+    "CHENG SAN": 27280,
+    "CHIN BEE": 0,
+    "CHINA SQUARE": 1340,
+    "CHINATOWN": 10200,
+    "CHOA CHU KANG CENTRAL": 22390,
+    "CHOA CHU KANG NORTH": 31360,
+    "CHONG BOON": 25680,
+    "CITY HALL": 130,
+    "CITY TERMINALS": 20,
+    "CLARKE QUAY": 120,
+    "CLEANTECH": 0,
+    "CLEMENTI CENTRAL": 14780,
+    "CLEMENTI NORTH": 29400,
+    "CLEMENTI WEST": 14530,
+    "CLEMENTI WOODS": 18270,
+    "CLIFFORD PIER": 0,
+    "COMMONWEALTH": 6700,
+    "COMPASSVALE": 20810,
+    "CONEY ISLAND": 0,
+    "CORONATION ROAD": 7180,
+    "CRAWFORD": 7930,
+    "DAIRY FARM": 7130,
+    "DEFU INDUSTRIAL PARK": 10,
+    "DEPOT ROAD": 6500,
+    "DHOBY GHAUT": 500,
+    "DOVER": 11280,
+    "DUNEARN": 4090,
+    "EAST COAST": 0,
+    "EVERTON PARK": 7650,
+    "FABER": 5490,
+    "FAJAR": 26800,
+    "FARRER COURT": 6700,
+    "FARRER PARK": 2570,
+    "FERNVALE": 65590,
+    "FLORA DRIVE": 15960,
+    "FOREST HILL": 10,
+    "FORT CANNING": 210,
+    "FRANKEL": 35010,
+    "GALI BATU": 30,
+    "GARDEN": 0,
+    "GEYLANG BAHRU": 10650,
+    "GEYLANG EAST": 31440,
+    "GHIM MOH": 13430,
+    "GOMBAK": 9900,
+    "GOODWOOD PARK": 1470,
+    "GREENWOOD PARK": 100,
+    "GUILIN": 12930,
+    "GUL BASIN": 0,
+    "GUL CIRCLE": 10,
+    "HENDERSON HILL": 13000,
+    "HILLCREST": 9900,
+    "HILLVIEW": 19960,
+    "HOLLAND DRIVE": 12210,
+    "HOLLAND ROAD": 11560,
+    "HONG KAH": 53380,
+    "HONG KAH NORTH": 25660,
+    "HOUGANG CENTRAL": 4820,
+    "HOUGANG EAST": 24350,
+    "HOUGANG WEST": 44840,
+    "INSTITUTION HILL": 3750,
+    "INTERNATIONAL BUSINESS PARK": 10,
+    "ISTANA NEGARA": 50,
+    "JELEBU": 30430,
+    "JOO KOON": 20,
+    "JOO SENG": 8100,
+    "JURONG GATEWAY": 570,
+    "JURONG ISLAND AND BUKOM": 0,
+    "JURONG PORT": 0,
+    "JURONG RIVER": 10,
+    "JURONG WEST CENTRAL": 62960,
+    "KAKI BUKIT": 35880,
+    "KAMPONG BUGIS": 1590,
+    "KANGKAR": 32950,
+    "KEAT HONG": 38990,
+    "KOVAN": 25150,
+    "LOWER SELETAR": 19160,
+    "MATILDA": 53340,
+    "PASIR RIS DRIVE": 52650,
+    "PUNGGOL FIELD": 49010,
+    "REDHILL": 11090,
+    "RIVERVALE": 59180,
+    "SIMEI": 39050,
+    "TAMPINES EAST": 126460,
+    "TOA PAYOH CENTRAL": 27570,
+    "WOODLANDS EAST": 100220,
+    "YISHUN EAST": 70190,
+    "YISHUN WEST": 52160,
+    "Yuhua East": 24070,
+    "Yuhua West": 18800,
+    "Yunnan": 66890
+};
+
+        // GeoJSON file
+        var geojsonData = 'sgmap.json';
+
+        // Current gender being displayed
+        var currentGender = 'male';
+
+        // Function to get color based on population
+        function getColor(d) {
+            return d > 50000 ? '#800026' :
+                   d > 20000 ? '#BD0026' :
+                   d > 10000 ? '#E31A1C' :
+                   d > 5000  ? '#FC4E2A' :
+                   d > 1000  ? '#FD8D3C' :
+                               '#FFEDA0';
+        }
+
+        // Function to style features
+        function style(feature) {
+            var subzoneName = feature.properties['Subzone Name'].toUpperCase();
+            var population = (populationData[subzoneName] && populationData[subzoneName][currentGender]) || 0;
+            return {
+                fillColor: getColor(population),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        // Load GeoJSON data and apply styles
+        var geoLayer;
+        function loadGeoJson() {
+            if (geoLayer) map.removeLayer(geoLayer);
+            fetch(geojsonData)
+                .then(response => response.json())
+                .then(data => {
+                    geoLayer = L.geoJson(data, {
+                        style: style,
+                        onEachFeature: function (feature, layer) {
+                            var subzoneName = feature.properties['Subzone Name'].toUpperCase();
+                            var population = populationData[subzoneName]
+                                ? populationData[subzoneName][currentGender]
+                                : "No data";
+                            layer.bindPopup(`<b>${subzoneName}</b><br>${currentGender} Population: ${population}`);
+                        }
+                    }).addTo(map);
+                });
+        }
+
+        // Initial load
+        loadGeoJson();
+
+        // Event listeners for buttons
+        document.getElementById('maleBtn').onclick = function () {
+            currentGender = 'male';
+            loadGeoJson();
+        };
+        document.getElementById('femaleBtn').onclick = function () {
+            currentGender = 'female';
+            loadGeoJson();
+        };
+    </script>
+</body>
+</html>
 
