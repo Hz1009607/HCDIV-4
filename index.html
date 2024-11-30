@@ -159,6 +159,7 @@
 
         // Function to get color based on population
         function getColor(d) {
+            if (d === 0) return '#CCCCCC';
             return d > 50000 ? '#800026' :
                    d > 20000 ? '#BD0026' :
                    d > 10000 ? '#E31A1C' :
